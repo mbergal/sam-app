@@ -1,0 +1,11 @@
+{
+  "name": "aws-ts-resources",
+  "devDependencies": {
+    "@types/node": "latest"
+  },
+  "dependencies": {
+    "@pulumi/aws": "latest",
+    "@pulumi/aws-serverless": "^0.15.1",
+    "@pulumi/pulumi": "latest"
+  }
+}
