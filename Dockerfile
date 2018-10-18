@@ -1,4 +1,5 @@
 FROM microsoft/dotnet:2.0-sdk
+ARG COMMITSHA
 
 RUN apt-get -y update
 RUN apt-get -y install zip dos2unix mono-devel
@@ -16,4 +17,8 @@ COPY ./Solution.sln /app
 RUN dos2unix /app/build.sh
 
 WORKDIR /app
-RUN  bash ./build.sh 
+RUN  bash ./build.sh --commitSha=$COMMITSHA  --target=Release
+
+
+
+

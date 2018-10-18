@@ -1,4 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
+using Path = System.IO.Path;
 // ARGUMENTS
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -181,6 +182,7 @@ Task("Publish")
                 TreatAllWarningsAs = MSBuildTreatAllWarningsAs.Error,
                 Verbosity = dotNetCoreVerbosity
             };
+            msBuildSettings.Properties.Add("Version", new [] {version});
 
 			var settings = new DotNetCorePublishSettings
 			{
@@ -232,6 +234,26 @@ Task("Run-Local")
             Information("Exit code: {0}", process.GetExitCode());
         }
         Information("SAM local has finished.");
+    });
+
+FilePath ChangeName(FilePath path, string newName ) {
+    return path.GetDirectory().CombineWithFilePath( newName + path.GetExtension());
+}
+Task("Release")
+    .Description("Create release and upload it to S3")
+    .IsDependentOn("Pack")
+    .Does( () => {
+        var artifacts = GetFiles("./artifacts/*.zip");
+        foreach ( var artifact in artifacts ) {
+            CreateDirectory("./releases");
+            var versionedFileName = new FilePath( $"./releases/{artifact.GetFilenameWithoutExtension()}-{version}.zip");
+            Console.WriteLine($"New : {versionedFileName}");            
+            CopyFile(artifact, versionedFileName);
+            StartProcess("cmd", new ProcessSettings{
+                Arguments="/c aws s3 cp C:\\Users\\misha_000\\Projects\\sam-app\\artifacts\\HelloWorld.zip  s3://builds.dev.mbergal.com"
+            });
+        }
+
     });
 
 ///////////////////////////////////////////////////////////////////////////////

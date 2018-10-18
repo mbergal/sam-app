@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Http;
-using System.Net.Http.Headers;
+using System.Reflection;
+using System.Threading;
 using Newtonsoft.Json;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.APIGatewayEvents;
@@ -16,6 +16,12 @@ namespace HelloWorld
     public class Function
     {
         private static readonly HttpClient client = new HttpClient();
+
+        private static string Version()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            return assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+        }
 
         private static async Task<string> GetCallingIP()
         {
@@ -31,6 +37,9 @@ namespace HelloWorld
 
         public APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest apigProxyEvent, ILambdaContext context)
         {
+            Console.WriteLine($"FunctionHandler({Version()}) invoked with Id " +
+                              (apigProxyEvent?.RequestContext?.RequestId ?? "<Unknown>"));
+
             string location = GetCallingIP().Result;
             Dictionary<string, string> body = new Dictionary<string, string>
             {
@@ -42,7 +51,11 @@ namespace HelloWorld
             {
                 Body = JsonConvert.SerializeObject(body),
                 StatusCode = 200,
-                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+                Headers = new Dictionary<string, string>
+                {
+                    {"Content-Type", "application/json"},
+                    {"X-Version", Version()}
+                }
             };
         }
     }
