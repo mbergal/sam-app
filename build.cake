@@ -240,7 +240,7 @@ FilePath ChangeName(FilePath path, string newName ) {
     return path.GetDirectory().CombineWithFilePath( newName + path.GetExtension());
 }
 
-Task("Build-Release-Docker")
+Task("Release-Build-Releaser")
     .Description("Build release docker image")
     .Does( () => { 
             StartProcess("cmd", new ProcessSettings{
@@ -248,9 +248,9 @@ Task("Build-Release-Docker")
             });
      });
 
-Task("Run-Release-Docker")
-    .Description("Build release docker image")
-    .IsDependentOn("Build-Release-Docker")
+Task("Release-Run")
+    .Description("Run  release docker image")
+    .IsDependentOn("Release-Build-Releaser")
     .Does( () => { 
             StartProcess("cmd", new ProcessSettings{
                 Arguments="/c docker run -v C:\\Users\\misha_000\\Projects\\sam-app:/src mbergal/sam-app"
