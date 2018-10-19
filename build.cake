@@ -239,6 +239,24 @@ Task("Run-Local")
 FilePath ChangeName(FilePath path, string newName ) {
     return path.GetDirectory().CombineWithFilePath( newName + path.GetExtension());
 }
+
+Task("Build-Release-Docker")
+    .Description("Build release docker image")
+    .Does( () => { 
+            StartProcess("cmd", new ProcessSettings{
+                Arguments="/c docker build . -t mbergal/sam-app"
+            });
+     });
+
+Task("Run-Release-Docker")
+    .Description("Build release docker image")
+    .IsDependentOn("Build-Release-Docker")
+    .Does( () => { 
+            StartProcess("cmd", new ProcessSettings{
+                Arguments="/c docker run -v C:\\Users\\misha_000\\Projects\\sam-app:/src mbergal/sam-app"
+            });
+     });
+
 Task("Release")
     .Description("Create release and upload it to S3")
     .IsDependentOn("Pack")

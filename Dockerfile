@@ -7,17 +7,10 @@ RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.
 RUN unzip awscli-bundle.zip
 RUN ./awscli-bundle/install -b ~/bin/aws
 
-COPY ./src /app/src
-COPY ./tools/packages.config /app/tools/packages.config
-COPY ./build.cake /app
-COPY ./test /app/test
-COPY ./build.sh /app
-COPY ./Solution.sln /app
+VOLUME /src
+WORKDIR /src
 
-RUN dos2unix /app/build.sh
-
-WORKDIR /app
-RUN  bash ./build.sh --commitSha=$COMMITSHA  --target=Release
+CMD ./run.sh 
 
 
 
