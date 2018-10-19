@@ -240,23 +240,6 @@ FilePath ChangeName(FilePath path, string newName ) {
     return path.GetDirectory().CombineWithFilePath( newName + path.GetExtension());
 }
 
-Task("Release-Build-Releaser")
-    .Description("Build release docker image")
-    .Does( () => { 
-            StartProcess("cmd", new ProcessSettings{
-                Arguments="/c docker build -f ./release/Dockerfile . -t mbergal/sam-app"
-            });
-     });
-
-Task("Release-Run")
-    .Description("Run  release docker image")
-    .IsDependentOn("Release-Build-Releaser")
-    .Does( () => { 
-            StartProcess("cmd", new ProcessSettings{
-                Arguments="/c docker run -v C:\\Users\\misha_000\\Projects\\sam-app:/src mbergal/sam-app"
-            });
-     });
-
 Task("Release")
     .Description("Create release and upload it to S3")
     .IsDependentOn("Pack")
@@ -267,8 +250,8 @@ Task("Release")
             var versionedFileName = new FilePath( $"./releases/{artifact.GetFilenameWithoutExtension()}-{version}.zip");
             Console.WriteLine($"New : {versionedFileName}");            
             CopyFile(artifact, versionedFileName);
-            StartProcess("cmd", new ProcessSettings{
-                Arguments="/c aws s3 cp C:\\Users\\misha_000\\Projects\\sam-app\\artifacts\\HelloWorld.zip  s3://builds.dev.mbergal.com"
+            StartProcess("bash", new ProcessSettings{
+                Arguments=$"-c 'aws s3 cp {versionedFileName} s3://builds.dev.mbergal.com'"
             });
         }
 
