@@ -254,7 +254,6 @@ Task("Release")
                 Arguments=$"-c 'aws s3 cp {versionedFileName} s3://builds.dev.mbergal.com'"
             });
         }
-
     });
 
 ///////////////////////////////////////////////////////////////////////////////

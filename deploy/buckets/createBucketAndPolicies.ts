@@ -1,26 +1,39 @@
 import * as aws from "@pulumi/aws";
 
-export function createBucketAndPolicies(name: string): aws.s3.Bucket {
+export interface BucketResources {
+  bucket: aws.s3.Bucket;
+  readPolicy: aws.iam.Policy;
+  writePolicy: aws.iam.Policy;
+  readGroup: aws.iam.Group;
+  writeGroup: aws.iam.Group;
+}
+export function createBucketAndPolicies(name: string): BucketResources {
   const bucket = new aws.s3.Bucket(name, { bucket: name });
-  const bucketReadPolicy = new aws.iam.Policy(`${name}-read`, {
+  const readPolicy = new aws.iam.Policy(`${name}-read`, {
     policy: bucket.bucket.apply(readPolicyForBucket)
   });
-  const bucketWritePolicy = new aws.iam.Policy(`${name}-write`, {
+  const writePolicy = new aws.iam.Policy(`${name}-write`, {
     policy: bucket.bucket.apply(writePolicyForBucket)
   });
 
   const readGroup = new aws.iam.Group(`${name}-read`);
   const readPolicyAttachment = new aws.iam.PolicyAttachment(`${name}-read`, {
     groups: [readGroup],
-    policyArn: bucketReadPolicy.arn
+    policyArn: readPolicy.arn
   });
   const writeGroup = new aws.iam.Group(`${name}-write`);
   const writePolicyAttachment = new aws.iam.PolicyAttachment(`${name}-write`, {
     groups: [writeGroup],
-    policyArn: bucketWritePolicy.arn
+    policyArn: writePolicy.arn
   });
 
-  return bucket;
+  return {
+    bucket,
+    readPolicy,
+    writePolicy,
+    readGroup,
+    writeGroup
+  };
 }
 
 function readPolicyForBucket(bucketName: string) {
