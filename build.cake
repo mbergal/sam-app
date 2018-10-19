@@ -244,7 +244,7 @@ Task("Build-Release-Docker")
     .Description("Build release docker image")
     .Does( () => { 
             StartProcess("cmd", new ProcessSettings{
-                Arguments="/c docker build . -t mbergal/sam-app"
+                Arguments="/c docker build -f ./release/Dockerfile . -t mbergal/sam-app"
             });
      });
 
